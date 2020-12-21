@@ -1,4 +1,4 @@
-# MSX-C for SDCC
+# MSX-C boilerplate/hello world for SDCC
 Credits to Konamito and Avelino Herrera<br>
 http://msx.avelinoherrera.com/index_en.html<br>
 ## Usage:
