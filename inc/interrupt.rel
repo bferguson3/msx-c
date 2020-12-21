@@ -1,0 +1,22 @@
+XL2
+H 2 areas 4 global symbols
+S .__.ABS. Def0000
+A _CODE size 25 flags 0 addr 0
+S _install_isr Def0000
+S _uninstall_isr Def001C
+A _DATA size 2 flags 0 addr 0
+S _old_isr Def0000
+T 00 00
+R 00 00 01 00
+T 00 00
+R 00 00 01 00
+T 00 00
+R 00 00 00 00
+T 00 00 DD E5 DD 21 00 00 DD 39 2A 39 00 22 00 00
+R 00 00 00 00 00 0E 01 00
+T 0E 00 F3 DD 6E 04 DD 66 05 22 39 00 FB DD E1 C9
+R 00 00 00 00
+T 1C 00
+R 00 00 00 00
+T 1C 00 F3 2A 00 00 22 39 00 FB C9
+R 00 00 00 00 00 04 01 00

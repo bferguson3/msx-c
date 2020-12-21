@@ -1,0 +1,22 @@
+XL2
+H 9 areas 3 global symbols
+M heap
+O -mz80
+S .__.ABS. Def0000
+S _heap_top Ref0000
+A _CODE size 1C flags 0 addr 0
+S _malloc Def0000
+A _DATA size 0 flags 0 addr 0
+A _INITIALIZED size 0 flags 0 addr 0
+A _DABS size 0 flags 8 addr 0
+A _HOME size 0 flags 0 addr 0
+A _GSINIT size 0 flags 0 addr 0
+A _GSFINAL size 0 flags 0 addr 0
+A _INITIALIZER size 0 flags 0 addr 0
+A _CABS size 0 flags 8 addr 0
+T 00 00
+R 00 00 00 00
+T 00 00 ED 4B 00 00 21 02 00 39 D5 FD 21 00 00 FD
+R 00 00 00 00 02 04 01 00 02 0D 01 00
+T 0E 00 E5 D1 1A 86 12 13 1A 23 8E 12 D1 69 60 C9
+R 00 00 00 00
