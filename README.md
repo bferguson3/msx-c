@@ -2,7 +2,7 @@
 Credits to Konamito and Avelino Herrera<br>
 http://msx.avelinoherrera.com/index_en.html<br>
 ## Usage:
-Requires SDCC (I use 4.0)<br>
+Requires SDCC (I use 4.0.7. DO NOT USE 4.0.0!)<br>
 Run `make.bat` to make the hello world .com file.<br>
 This will include all C libraries (~1.1kB) for MSX-DOS 1.1<br>
 <br>
