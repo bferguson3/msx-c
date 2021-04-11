@@ -2,13 +2,15 @@
 ; File Created by SDCC : free open source ANSI-C Compiler
 ; Version 4.1.4 #12212 (Linux)
 ;--------------------------------------------------------
-	.module heap
+	.module main
 	.optsdcc -mz80
 	
 ;--------------------------------------------------------
 ; Public variables in this module
 ;--------------------------------------------------------
-	.globl _malloc
+	.globl _main
+	.globl _exit
+	.globl _puts
 ;--------------------------------------------------------
 ; special function registers
 ;--------------------------------------------------------
@@ -40,31 +42,29 @@
 ; code
 ;--------------------------------------------------------
 	.area _CODE
-;heap.c:7: void *malloc(uint16_t size) {
+;src/main.c:4: void main(void) {
 ;	---------------------------------
-; Function malloc
+; Function main
 ; ---------------------------------
-_malloc::
-;heap.c:8: uint8_t *ret = heap_top;
-	ld	de, (_heap_top)
-;heap.c:9: heap_top += size;
-	ld	hl, #2
-	add	hl, sp
-	push	de
-	ld	de, #_heap_top
-	ld	a, (de)
-	add	a, (hl)
-	inc	hl
-	ld	(de), a
-	inc	de
-	ld	a, (de)
-	adc	a, (hl)
-	ld	(de), a
-	pop	de
-;heap.c:10: return (void *) ret;
-	ex	de, hl
-;heap.c:11: }
+_main::
+;src/main.c:5: puts("Hello, world :-)\r\n");
+	ld	hl, #___str_0
+	push	hl
+	call	_puts
+	pop	af
+;src/main.c:6: exit(0);
+	xor	a, a
+	push	af
+	inc	sp
+	call	_exit
+	inc	sp
+;src/main.c:7: }
 	ret
+___str_0:
+	.ascii "Hello, world :-)"
+	.db 0x0d
+	.db 0x0a
+	.db 0x00
 	.area _CODE
 	.area _INITIALIZER
 	.area _CABS (ABS)

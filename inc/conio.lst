@@ -1,281 +1,279 @@
-                              1 ;--------------------------------------------------------
-                              2 ; File Created by SDCC : free open source ANSI-C Compiler
-                              3 ; Version 4.0.0 #11528 (MINGW64)
-                              4 ;--------------------------------------------------------
-                              5 	.module conio
-                              6 	.optsdcc -mz80
-                              7 	
-                              8 ;--------------------------------------------------------
-                              9 ; Public variables in this module
-                             10 ;--------------------------------------------------------
-                             11 	.globl _putdec
-                             12 	.globl _puthex
-                             13 	.globl _putchar
-                             14 	.globl _puts
-                             15 	.globl _puthex8
-                             16 	.globl _puthex16
-                             17 	.globl _putdec8
-                             18 	.globl _putdec16
-                             19 ;--------------------------------------------------------
-                             20 ; special function registers
-                             21 ;--------------------------------------------------------
-                             22 ;--------------------------------------------------------
-                             23 ; ram data
-                             24 ;--------------------------------------------------------
-                             25 	.area _DATA
-                             26 ;--------------------------------------------------------
-                             27 ; ram data
-                             28 ;--------------------------------------------------------
-                             29 	.area _INITIALIZED
-                             30 ;--------------------------------------------------------
-                             31 ; absolute external ram data
-                             32 ;--------------------------------------------------------
-                             33 	.area _DABS (ABS)
-                             34 ;--------------------------------------------------------
-                             35 ; global & static initialisations
-                             36 ;--------------------------------------------------------
-                             37 	.area _HOME
-                             38 	.area _GSINIT
-                             39 	.area _GSFINAL
-                             40 	.area _GSINIT
-                             41 ;--------------------------------------------------------
-                             42 ; Home
-                             43 ;--------------------------------------------------------
-                             44 	.area _HOME
-                             45 	.area _HOME
-                             46 ;--------------------------------------------------------
-                             47 ; code
-                             48 ;--------------------------------------------------------
-                             49 	.area _CODE
-                             50 ;conio.c:7: void puts(char *s) {
-                             51 ;	---------------------------------
-                             52 ; Function puts
-                             53 ; ---------------------------------
-   0000                      54 _puts::
-                             55 ;conio.c:8: while (*s != 0) {
-   0000 D1            [10]   56 	pop	de
-   0001 C1            [10]   57 	pop	bc
-   0002 C5            [11]   58 	push	bc
-   0003 D5            [11]   59 	push	de
-   0004                      60 00101$:
-   0004 0A            [ 7]   61 	ld	a, (bc)
-   0005 B7            [ 4]   62 	or	a, a
-   0006 C8            [11]   63 	ret	Z
-                             64 ;conio.c:9: putchar(*s);
-   0007 C5            [11]   65 	push	bc
-   0008 F5            [11]   66 	push	af
-   0009 33            [ 6]   67 	inc	sp
-   000A CDr00r00      [17]   68 	call	_putchar
-   000D 33            [ 6]   69 	inc	sp
-   000E C1            [10]   70 	pop	bc
-                             71 ;conio.c:10: s++;
-   000F 03            [ 6]   72 	inc	bc
-                             73 ;conio.c:12: }
-   0010 18 F2         [12]   74 	jr	00101$
-                             75 ;conio.c:15: void puthex(int8_t nibbles, uint16_t v) {
-                             76 ;	---------------------------------
-                             77 ; Function puthex
-                             78 ; ---------------------------------
-   0012                      79 _puthex::
-                             80 ;conio.c:16: int8_t i = nibbles - 1;
-   0012 21 02 00      [10]   81 	ld	hl, #2+0
-   0015 39            [11]   82 	add	hl, sp
-   0016 4E            [ 7]   83 	ld	c, (hl)
-   0017 0D            [ 4]   84 	dec	c
-                             85 ;conio.c:17: while (i >= 0) {
-   0018                      86 00104$:
-   0018 CB 79         [ 8]   87 	bit	7, c
-   001A C0            [11]   88 	ret	NZ
-                             89 ;conio.c:18: uint16_t aux = (v >> (i << 2)) & 0x000F;
-   001B 79            [ 4]   90 	ld	a, c
-   001C 87            [ 4]   91 	add	a, a
-   001D 87            [ 4]   92 	add	a, a
-   001E 47            [ 4]   93 	ld	b, a
-   001F 21 03 00      [10]   94 	ld	hl, #3
-   0022 39            [11]   95 	add	hl, sp
-   0023 5E            [ 7]   96 	ld	e, (hl)
-   0024 23            [ 6]   97 	inc	hl
-   0025 56            [ 7]   98 	ld	d, (hl)
-   0026 04            [ 4]   99 	inc	b
-   0027 18 04         [12]  100 	jr	00126$
-   0029                     101 00125$:
-   0029 CB 3A         [ 8]  102 	srl	d
-   002B CB 1B         [ 8]  103 	rr	e
-   002D                     104 00126$:
-   002D 10 FA         [13]  105 	djnz	00125$
-   002F 7B            [ 4]  106 	ld	a, e
-   0030 E6 0F         [ 7]  107 	and	a, #0x0f
-                            108 ;conio.c:19: uint8_t n = aux & 0x000F;
-   0032 E6 0F         [ 7]  109 	and	a, #0x0f
-   0034 5F            [ 4]  110 	ld	e, a
-                            111 ;conio.c:21: putchar('A' + (n - 10));
-   0035 43            [ 4]  112 	ld	b, e
-                            113 ;conio.c:20: if (n > 9)
-   0036 3E 09         [ 7]  114 	ld	a, #0x09
-   0038 93            [ 4]  115 	sub	a, e
-   0039 30 0D         [12]  116 	jr	NC,00102$
-                            117 ;conio.c:21: putchar('A' + (n - 10));
-   003B 78            [ 4]  118 	ld	a, b
-   003C C6 37         [ 7]  119 	add	a, #0x37
-   003E C5            [11]  120 	push	bc
-   003F F5            [11]  121 	push	af
-   0040 33            [ 6]  122 	inc	sp
-   0041 CDr00r00      [17]  123 	call	_putchar
-   0044 33            [ 6]  124 	inc	sp
-   0045 C1            [10]  125 	pop	bc
-   0046 18 0B         [12]  126 	jr	00103$
-   0048                     127 00102$:
-                            128 ;conio.c:23: putchar('0' + n);
-   0048 78            [ 4]  129 	ld	a, b
-   0049 C6 30         [ 7]  130 	add	a, #0x30
-   004B C5            [11]  131 	push	bc
-   004C F5            [11]  132 	push	af
-   004D 33            [ 6]  133 	inc	sp
-   004E CDr00r00      [17]  134 	call	_putchar
-   0051 33            [ 6]  135 	inc	sp
-   0052 C1            [10]  136 	pop	bc
-   0053                     137 00103$:
-                            138 ;conio.c:24: i--;
-   0053 0D            [ 4]  139 	dec	c
-                            140 ;conio.c:26: }
-   0054 18 C2         [12]  141 	jr	00104$
-                            142 ;conio.c:29: void puthex8(uint8_t v) {
-                            143 ;	---------------------------------
-                            144 ; Function puthex8
-                            145 ; ---------------------------------
-   0056                     146 _puthex8::
-                            147 ;conio.c:30: puthex(2, (uint16_t) v);
-   0056 21 02 00      [10]  148 	ld	hl, #2+0
-   0059 39            [11]  149 	add	hl, sp
-   005A 4E            [ 7]  150 	ld	c, (hl)
-   005B 06 00         [ 7]  151 	ld	b, #0x00
-   005D C5            [11]  152 	push	bc
-   005E 3E 02         [ 7]  153 	ld	a, #0x02
-   0060 F5            [11]  154 	push	af
-   0061 33            [ 6]  155 	inc	sp
-   0062 CDr12r00      [17]  156 	call	_puthex
-   0065 F1            [10]  157 	pop	af
-   0066 33            [ 6]  158 	inc	sp
-                            159 ;conio.c:31: }
-   0067 C9            [10]  160 	ret
-                            161 ;conio.c:34: void puthex16(uint16_t v) {
-                            162 ;	---------------------------------
-                            163 ; Function puthex16
-                            164 ; ---------------------------------
-   0068                     165 _puthex16::
-                            166 ;conio.c:35: puthex(4, v);
-   0068 C1            [10]  167 	pop	bc
-   0069 E1            [10]  168 	pop	hl
-   006A E5            [11]  169 	push	hl
-   006B C5            [11]  170 	push	bc
-   006C E5            [11]  171 	push	hl
-   006D 3E 04         [ 7]  172 	ld	a, #0x04
-   006F F5            [11]  173 	push	af
-   0070 33            [ 6]  174 	inc	sp
-   0071 CDr12r00      [17]  175 	call	_puthex
-   0074 F1            [10]  176 	pop	af
-   0075 33            [ 6]  177 	inc	sp
-                            178 ;conio.c:36: }
-   0076 C9            [10]  179 	ret
-                            180 ;conio.c:39: void putdec(int16_t digits, uint16_t v) {
-                            181 ;	---------------------------------
-                            182 ; Function putdec
-                            183 ; ---------------------------------
-   0077                     184 _putdec::
-                            185 ;conio.c:40: while (digits > 0) {
-   0077                     186 00101$:
-   0077 AF            [ 4]  187 	xor	a, a
-   0078 FD 21 02 00   [14]  188 	ld	iy, #2
-   007C FD 39         [15]  189 	add	iy, sp
-   007E FD BE 00      [19]  190 	cp	a, 0 (iy)
-   0081 FD 9E 01      [19]  191 	sbc	a, 1 (iy)
-   0084 E2r89r00      [10]  192 	jp	PO, 00116$
-   0087 EE 80         [ 7]  193 	xor	a, #0x80
-   0089                     194 00116$:
-   0089 F0            [11]  195 	ret	P
-                            196 ;conio.c:41: uint16_t aux = v / digits;
-   008A D1            [10]  197 	pop	de
-   008B C1            [10]  198 	pop	bc
-   008C C5            [11]  199 	push	bc
-   008D D5            [11]  200 	push	de
-   008E C5            [11]  201 	push	bc
-   008F 21 06 00      [10]  202 	ld	hl, #6
-   0092 39            [11]  203 	add	hl, sp
-   0093 4E            [ 7]  204 	ld	c, (hl)
-   0094 23            [ 6]  205 	inc	hl
-   0095 46            [ 7]  206 	ld	b, (hl)
-   0096 C5            [11]  207 	push	bc
-   0097 CDr00r00      [17]  208 	call	__divuint
-   009A F1            [10]  209 	pop	af
-   009B F1            [10]  210 	pop	af
-                            211 ;conio.c:42: uint8_t n = aux % 10;
-   009C 01 0A 00      [10]  212 	ld	bc, #0x000a
-   009F C5            [11]  213 	push	bc
-   00A0 E5            [11]  214 	push	hl
-   00A1 CDr00r00      [17]  215 	call	__moduint
-   00A4 F1            [10]  216 	pop	af
-   00A5 F1            [10]  217 	pop	af
-   00A6 7D            [ 4]  218 	ld	a, l
-                            219 ;conio.c:43: putchar('0' + n);
-   00A7 C6 30         [ 7]  220 	add	a, #0x30
-   00A9 F5            [11]  221 	push	af
-   00AA 33            [ 6]  222 	inc	sp
-   00AB CDr00r00      [17]  223 	call	_putchar
-   00AE 33            [ 6]  224 	inc	sp
-                            225 ;conio.c:44: digits /= 10;
-   00AF 21 0A 00      [10]  226 	ld	hl, #0x000a
-   00B2 E5            [11]  227 	push	hl
-   00B3 21 04 00      [10]  228 	ld	hl, #4
-   00B6 39            [11]  229 	add	hl, sp
-   00B7 4E            [ 7]  230 	ld	c, (hl)
-   00B8 23            [ 6]  231 	inc	hl
-   00B9 46            [ 7]  232 	ld	b, (hl)
-   00BA C5            [11]  233 	push	bc
-   00BB CDr00r00      [17]  234 	call	__divsint
-   00BE F1            [10]  235 	pop	af
-   00BF F1            [10]  236 	pop	af
-   00C0 FD 21 02 00   [14]  237 	ld	iy, #2
-   00C4 FD 39         [15]  238 	add	iy, sp
-   00C6 FD 75 00      [19]  239 	ld	0 (iy), l
-   00C9 FD 74 01      [19]  240 	ld	1 (iy), h
-                            241 ;conio.c:46: }
-   00CC 18 A9         [12]  242 	jr	00101$
-                            243 ;conio.c:49: void putdec8(uint8_t v) {
-                            244 ;	---------------------------------
-                            245 ; Function putdec8
-                            246 ; ---------------------------------
-   00CE                     247 _putdec8::
-                            248 ;conio.c:50: putdec(100, (uint16_t) v);
-   00CE 21 02 00      [10]  249 	ld	hl, #2+0
-   00D1 39            [11]  250 	add	hl, sp
-   00D2 4E            [ 7]  251 	ld	c, (hl)
-   00D3 06 00         [ 7]  252 	ld	b, #0x00
-   00D5 C5            [11]  253 	push	bc
-   00D6 21 64 00      [10]  254 	ld	hl, #0x0064
-   00D9 E5            [11]  255 	push	hl
-   00DA CDr77r00      [17]  256 	call	_putdec
-   00DD F1            [10]  257 	pop	af
-   00DE F1            [10]  258 	pop	af
-                            259 ;conio.c:51: }
-   00DF C9            [10]  260 	ret
-                            261 ;conio.c:54: void putdec16(uint16_t v) {
-                            262 ;	---------------------------------
-                            263 ; Function putdec16
-                            264 ; ---------------------------------
-   00E0                     265 _putdec16::
-                            266 ;conio.c:55: putdec(10000, v);
-   00E0 C1            [10]  267 	pop	bc
-   00E1 E1            [10]  268 	pop	hl
-   00E2 E5            [11]  269 	push	hl
-   00E3 C5            [11]  270 	push	bc
-   00E4 E5            [11]  271 	push	hl
-   00E5 21 10 27      [10]  272 	ld	hl, #0x2710
-   00E8 E5            [11]  273 	push	hl
-   00E9 CDr77r00      [17]  274 	call	_putdec
-   00EC F1            [10]  275 	pop	af
-   00ED F1            [10]  276 	pop	af
-                            277 ;conio.c:56: }
-   00EE C9            [10]  278 	ret
-                            279 	.area _CODE
-                            280 	.area _INITIALIZER
-                            281 	.area _CABS (ABS)
+                                      1 ;--------------------------------------------------------
+                                      2 ; File Created by SDCC : free open source ANSI-C Compiler
+                                      3 ; Version 4.1.4 #12212 (Linux)
+                                      4 ;--------------------------------------------------------
+                                      5 	.module conio
+                                      6 	.optsdcc -mz80
+                                      7 	
+                                      8 ;--------------------------------------------------------
+                                      9 ; Public variables in this module
+                                     10 ;--------------------------------------------------------
+                                     11 	.globl _putdec
+                                     12 	.globl _puthex
+                                     13 	.globl _putchar
+                                     14 	.globl _puts
+                                     15 	.globl _puthex8
+                                     16 	.globl _puthex16
+                                     17 	.globl _putdec8
+                                     18 	.globl _putdec16
+                                     19 ;--------------------------------------------------------
+                                     20 ; special function registers
+                                     21 ;--------------------------------------------------------
+                                     22 ;--------------------------------------------------------
+                                     23 ; ram data
+                                     24 ;--------------------------------------------------------
+                                     25 	.area _DATA
+                                     26 ;--------------------------------------------------------
+                                     27 ; ram data
+                                     28 ;--------------------------------------------------------
+                                     29 	.area _INITIALIZED
+                                     30 ;--------------------------------------------------------
+                                     31 ; absolute external ram data
+                                     32 ;--------------------------------------------------------
+                                     33 	.area _DABS (ABS)
+                                     34 ;--------------------------------------------------------
+                                     35 ; global & static initialisations
+                                     36 ;--------------------------------------------------------
+                                     37 	.area _HOME
+                                     38 	.area _GSINIT
+                                     39 	.area _GSFINAL
+                                     40 	.area _GSINIT
+                                     41 ;--------------------------------------------------------
+                                     42 ; Home
+                                     43 ;--------------------------------------------------------
+                                     44 	.area _HOME
+                                     45 	.area _HOME
+                                     46 ;--------------------------------------------------------
+                                     47 ; code
+                                     48 ;--------------------------------------------------------
+                                     49 	.area _CODE
+                                     50 ;conio.c:7: void puts(char *s) {
+                                     51 ;	---------------------------------
+                                     52 ; Function puts
+                                     53 ; ---------------------------------
+      000000                         54 _puts::
+                                     55 ;conio.c:8: while (*s != 0) {
+      000000 FD 21 02 00      [14]   56 	ld	iy, #2
+      000004 FD 39            [15]   57 	add	iy, sp
+      000006 FD 4E 00         [19]   58 	ld	c, 0 (iy)
+      000009 FD 46 01         [19]   59 	ld	b, 1 (iy)
+      00000C                         60 00101$:
+      00000C 0A               [ 7]   61 	ld	a, (bc)
+      00000D B7               [ 4]   62 	or	a, a
+      00000E C8               [11]   63 	ret	Z
+                                     64 ;conio.c:9: putchar(*s);
+      00000F C5               [11]   65 	push	bc
+      000010 F5               [11]   66 	push	af
+      000011 33               [ 6]   67 	inc	sp
+      000012 CDr00r00         [17]   68 	call	_putchar
+      000015 33               [ 6]   69 	inc	sp
+      000016 C1               [10]   70 	pop	bc
+                                     71 ;conio.c:10: s++;
+      000017 03               [ 6]   72 	inc	bc
+                                     73 ;conio.c:12: }
+      000018 18 F2            [12]   74 	jr	00101$
+                                     75 ;conio.c:15: void puthex(int8_t nibbles, uint16_t v) {
+                                     76 ;	---------------------------------
+                                     77 ; Function puthex
+                                     78 ; ---------------------------------
+      00001A                         79 _puthex::
+                                     80 ;conio.c:16: int8_t i = nibbles - 1;
+      00001A FD 21 02 00      [14]   81 	ld	iy, #2
+      00001E FD 39            [15]   82 	add	iy, sp
+      000020 FD 4E 00         [19]   83 	ld	c, 0 (iy)
+      000023 0D               [ 4]   84 	dec	c
+                                     85 ;conio.c:17: while (i >= 0) {
+      000024                         86 00104$:
+      000024 CB 79            [ 8]   87 	bit	7, c
+      000026 C0               [11]   88 	ret	NZ
+                                     89 ;conio.c:18: uint16_t aux = (v >> (i << 2)) & 0x000F;
+      000027 69               [ 4]   90 	ld	l, c
+      000028 29               [11]   91 	add	hl, hl
+      000029 29               [11]   92 	add	hl, hl
+      00002A FD 21 03 00      [14]   93 	ld	iy, #3
+      00002E FD 39            [15]   94 	add	iy, sp
+      000030 FD 46 00         [19]   95 	ld	b, 0 (iy)
+      000033 FD 5E 01         [19]   96 	ld	e, 1 (iy)
+      000036 2C               [ 4]   97 	inc	l
+      000037 18 04            [12]   98 	jr	00126$
+      000039                         99 00125$:
+      000039 CB 3B            [ 8]  100 	srl	e
+      00003B CB 18            [ 8]  101 	rr	b
+      00003D                        102 00126$:
+      00003D 2D               [ 4]  103 	dec	l
+      00003E 20 F9            [12]  104 	jr	NZ, 00125$
+      000040 78               [ 4]  105 	ld	a, b
+                                    106 ;conio.c:19: uint8_t n = aux & 0x000F;
+      000041 E6 0F            [ 7]  107 	and	a, #0xf
+      000043 5F               [ 4]  108 	ld	e, a
+                                    109 ;conio.c:21: putchar('A' + (n - 10));
+      000044 43               [ 4]  110 	ld	b, e
+                                    111 ;conio.c:20: if (n > 9)
+      000045 3E 09            [ 7]  112 	ld	a, #0x09
+      000047 93               [ 4]  113 	sub	a, e
+      000048 30 0D            [12]  114 	jr	NC, 00102$
+                                    115 ;conio.c:21: putchar('A' + (n - 10));
+      00004A 78               [ 4]  116 	ld	a, b
+      00004B C6 37            [ 7]  117 	add	a, #0x37
+      00004D C5               [11]  118 	push	bc
+      00004E F5               [11]  119 	push	af
+      00004F 33               [ 6]  120 	inc	sp
+      000050 CDr00r00         [17]  121 	call	_putchar
+      000053 33               [ 6]  122 	inc	sp
+      000054 C1               [10]  123 	pop	bc
+      000055 18 0B            [12]  124 	jr	00103$
+      000057                        125 00102$:
+                                    126 ;conio.c:23: putchar('0' + n);
+      000057 78               [ 4]  127 	ld	a, b
+      000058 C6 30            [ 7]  128 	add	a, #0x30
+      00005A C5               [11]  129 	push	bc
+      00005B F5               [11]  130 	push	af
+      00005C 33               [ 6]  131 	inc	sp
+      00005D CDr00r00         [17]  132 	call	_putchar
+      000060 33               [ 6]  133 	inc	sp
+      000061 C1               [10]  134 	pop	bc
+      000062                        135 00103$:
+                                    136 ;conio.c:24: i--;
+      000062 0D               [ 4]  137 	dec	c
+                                    138 ;conio.c:26: }
+      000063 18 BF            [12]  139 	jr	00104$
+                                    140 ;conio.c:29: void puthex8(uint8_t v) {
+                                    141 ;	---------------------------------
+                                    142 ; Function puthex8
+                                    143 ; ---------------------------------
+      000065                        144 _puthex8::
+                                    145 ;conio.c:30: puthex(2, (uint16_t) v);
+      000065 21 02 00         [10]  146 	ld	hl, #2
+      000068 39               [11]  147 	add	hl, sp
+      000069 4E               [ 7]  148 	ld	c, (hl)
+      00006A 06 00            [ 7]  149 	ld	b, #0x00
+      00006C C5               [11]  150 	push	bc
+      00006D 3E 02            [ 7]  151 	ld	a, #0x02
+      00006F F5               [11]  152 	push	af
+      000070 33               [ 6]  153 	inc	sp
+      000071 CDr1Ar00         [17]  154 	call	_puthex
+      000074 F1               [10]  155 	pop	af
+      000075 33               [ 6]  156 	inc	sp
+                                    157 ;conio.c:31: }
+      000076 C9               [10]  158 	ret
+                                    159 ;conio.c:34: void puthex16(uint16_t v) {
+                                    160 ;	---------------------------------
+                                    161 ; Function puthex16
+                                    162 ; ---------------------------------
+      000077                        163 _puthex16::
+                                    164 ;conio.c:35: puthex(4, v);
+      000077 21 02 00         [10]  165 	ld	hl, #2
+      00007A 39               [11]  166 	add	hl, sp
+      00007B 4E               [ 7]  167 	ld	c, (hl)
+      00007C 23               [ 6]  168 	inc	hl
+      00007D 46               [ 7]  169 	ld	b, (hl)
+      00007E C5               [11]  170 	push	bc
+      00007F 3E 04            [ 7]  171 	ld	a, #0x04
+      000081 F5               [11]  172 	push	af
+      000082 33               [ 6]  173 	inc	sp
+      000083 CDr1Ar00         [17]  174 	call	_puthex
+      000086 F1               [10]  175 	pop	af
+      000087 33               [ 6]  176 	inc	sp
+                                    177 ;conio.c:36: }
+      000088 C9               [10]  178 	ret
+                                    179 ;conio.c:39: void putdec(int16_t digits, uint16_t v) {
+                                    180 ;	---------------------------------
+                                    181 ; Function putdec
+                                    182 ; ---------------------------------
+      000089                        183 _putdec::
+                                    184 ;conio.c:40: while (digits > 0) {
+      000089                        185 00101$:
+      000089 AF               [ 4]  186 	xor	a, a
+      00008A FD 21 02 00      [14]  187 	ld	iy, #2
+      00008E FD 39            [15]  188 	add	iy, sp
+      000090 FD BE 00         [19]  189 	cp	a, 0 (iy)
+      000093 FD 9E 01         [19]  190 	sbc	a, 1 (iy)
+      000096 E2r9Br00         [10]  191 	jp	PO, 00116$
+      000099 EE 80            [ 7]  192 	xor	a, #0x80
+      00009B                        193 00116$:
+      00009B F0               [11]  194 	ret	P
+                                    195 ;conio.c:41: uint16_t aux = v / digits;
+      00009C FD 21 02 00      [14]  196 	ld	iy, #2
+      0000A0 FD 39            [15]  197 	add	iy, sp
+      0000A2 FD 4E 00         [19]  198 	ld	c, 0 (iy)
+      0000A5 FD 46 01         [19]  199 	ld	b, 1 (iy)
+      0000A8 C5               [11]  200 	push	bc
+      0000A9 FD 6E 02         [19]  201 	ld	l, 2 (iy)
+      0000AC FD 66 03         [19]  202 	ld	h, 3 (iy)
+      0000AF E5               [11]  203 	push	hl
+      0000B0 CDr00r00         [17]  204 	call	__divuint
+      0000B3 F1               [10]  205 	pop	af
+      0000B4 F1               [10]  206 	pop	af
+                                    207 ;conio.c:42: uint8_t n = aux % 10;
+      0000B5 11 0A 00         [10]  208 	ld	de, #0x000a
+      0000B8 D5               [11]  209 	push	de
+      0000B9 E5               [11]  210 	push	hl
+      0000BA CDr00r00         [17]  211 	call	__moduint
+      0000BD F1               [10]  212 	pop	af
+      0000BE F1               [10]  213 	pop	af
+      0000BF 7D               [ 4]  214 	ld	a, l
+                                    215 ;conio.c:43: putchar('0' + n);
+      0000C0 C6 30            [ 7]  216 	add	a, #0x30
+      0000C2 F5               [11]  217 	push	af
+      0000C3 33               [ 6]  218 	inc	sp
+      0000C4 CDr00r00         [17]  219 	call	_putchar
+      0000C7 33               [ 6]  220 	inc	sp
+                                    221 ;conio.c:44: digits /= 10;
+      0000C8 21 0A 00         [10]  222 	ld	hl, #0x000a
+      0000CB E5               [11]  223 	push	hl
+      0000CC 21 04 00         [10]  224 	ld	hl, #4
+      0000CF 39               [11]  225 	add	hl, sp
+      0000D0 4E               [ 7]  226 	ld	c, (hl)
+      0000D1 23               [ 6]  227 	inc	hl
+      0000D2 46               [ 7]  228 	ld	b, (hl)
+      0000D3 C5               [11]  229 	push	bc
+      0000D4 CDr00r00         [17]  230 	call	__divsint
+      0000D7 F1               [10]  231 	pop	af
+      0000D8 F1               [10]  232 	pop	af
+      0000D9 EB               [ 4]  233 	ex	de, hl
+      0000DA FD 21 02 00      [14]  234 	ld	iy, #2
+      0000DE FD 39            [15]  235 	add	iy, sp
+      0000E0 FD 73 00         [19]  236 	ld	0 (iy), e
+      0000E3 FD 72 01         [19]  237 	ld	1 (iy), d
+                                    238 ;conio.c:46: }
+      0000E6 18 A1            [12]  239 	jr	00101$
+                                    240 ;conio.c:49: void putdec8(uint8_t v) {
+                                    241 ;	---------------------------------
+                                    242 ; Function putdec8
+                                    243 ; ---------------------------------
+      0000E8                        244 _putdec8::
+                                    245 ;conio.c:50: putdec(100, (uint16_t) v);
+      0000E8 21 02 00         [10]  246 	ld	hl, #2
+      0000EB 39               [11]  247 	add	hl, sp
+      0000EC 4E               [ 7]  248 	ld	c, (hl)
+      0000ED 06 00            [ 7]  249 	ld	b, #0x00
+      0000EF C5               [11]  250 	push	bc
+      0000F0 21 64 00         [10]  251 	ld	hl, #0x0064
+      0000F3 E5               [11]  252 	push	hl
+      0000F4 CDr89r00         [17]  253 	call	_putdec
+      0000F7 F1               [10]  254 	pop	af
+      0000F8 F1               [10]  255 	pop	af
+                                    256 ;conio.c:51: }
+      0000F9 C9               [10]  257 	ret
+                                    258 ;conio.c:54: void putdec16(uint16_t v) {
+                                    259 ;	---------------------------------
+                                    260 ; Function putdec16
+                                    261 ; ---------------------------------
+      0000FA                        262 _putdec16::
+                                    263 ;conio.c:55: putdec(10000, v);
+      0000FA 21 02 00         [10]  264 	ld	hl, #2
+      0000FD 39               [11]  265 	add	hl, sp
+      0000FE 4E               [ 7]  266 	ld	c, (hl)
+      0000FF 23               [ 6]  267 	inc	hl
+      000100 46               [ 7]  268 	ld	b, (hl)
+      000101 C5               [11]  269 	push	bc
+      000102 21 10 27         [10]  270 	ld	hl, #0x2710
+      000105 E5               [11]  271 	push	hl
+      000106 CDr89r00         [17]  272 	call	_putdec
+      000109 F1               [10]  273 	pop	af
+      00010A F1               [10]  274 	pop	af
+                                    275 ;conio.c:56: }
+      00010B C9               [10]  276 	ret
+                                    277 	.area _CODE
+                                    278 	.area _INITIALIZER
+                                    279 	.area _CABS (ABS)

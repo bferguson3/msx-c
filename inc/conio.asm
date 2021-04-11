@@ -1,6 +1,6 @@
 ;--------------------------------------------------------
 ; File Created by SDCC : free open source ANSI-C Compiler
-; Version 4.0.0 #11528 (MINGW64)
+; Version 4.1.4 #12212 (Linux)
 ;--------------------------------------------------------
 	.module conio
 	.optsdcc -mz80
@@ -53,10 +53,10 @@
 ; ---------------------------------
 _puts::
 ;conio.c:8: while (*s != 0) {
-	pop	de
-	pop	bc
-	push	bc
-	push	de
+	ld	iy, #2
+	add	iy, sp
+	ld	c, 0 (iy)
+	ld	b, 1 (iy)
 00101$:
 	ld	a, (bc)
 	or	a, a
@@ -78,42 +78,40 @@ _puts::
 ; ---------------------------------
 _puthex::
 ;conio.c:16: int8_t i = nibbles - 1;
-	ld	hl, #2+0
-	add	hl, sp
-	ld	c, (hl)
+	ld	iy, #2
+	add	iy, sp
+	ld	c, 0 (iy)
 	dec	c
 ;conio.c:17: while (i >= 0) {
 00104$:
 	bit	7, c
 	ret	NZ
 ;conio.c:18: uint16_t aux = (v >> (i << 2)) & 0x000F;
-	ld	a, c
-	add	a, a
-	add	a, a
-	ld	b, a
-	ld	hl, #3
-	add	hl, sp
-	ld	e, (hl)
-	inc	hl
-	ld	d, (hl)
-	inc	b
+	ld	l, c
+	add	hl, hl
+	add	hl, hl
+	ld	iy, #3
+	add	iy, sp
+	ld	b, 0 (iy)
+	ld	e, 1 (iy)
+	inc	l
 	jr	00126$
 00125$:
-	srl	d
-	rr	e
+	srl	e
+	rr	b
 00126$:
-	djnz	00125$
-	ld	a, e
-	and	a, #0x0f
+	dec	l
+	jr	NZ, 00125$
+	ld	a, b
 ;conio.c:19: uint8_t n = aux & 0x000F;
-	and	a, #0x0f
+	and	a, #0xf
 	ld	e, a
 ;conio.c:21: putchar('A' + (n - 10));
 	ld	b, e
 ;conio.c:20: if (n > 9)
 	ld	a, #0x09
 	sub	a, e
-	jr	NC,00102$
+	jr	NC, 00102$
 ;conio.c:21: putchar('A' + (n - 10));
 	ld	a, b
 	add	a, #0x37
@@ -145,7 +143,7 @@ _puthex::
 ; ---------------------------------
 _puthex8::
 ;conio.c:30: puthex(2, (uint16_t) v);
-	ld	hl, #2+0
+	ld	hl, #2
 	add	hl, sp
 	ld	c, (hl)
 	ld	b, #0x00
@@ -164,11 +162,12 @@ _puthex8::
 ; ---------------------------------
 _puthex16::
 ;conio.c:35: puthex(4, v);
-	pop	bc
-	pop	hl
-	push	hl
+	ld	hl, #2
+	add	hl, sp
+	ld	c, (hl)
+	inc	hl
+	ld	b, (hl)
 	push	bc
-	push	hl
 	ld	a, #0x04
 	push	af
 	inc	sp
@@ -194,23 +193,20 @@ _putdec::
 00116$:
 	ret	P
 ;conio.c:41: uint16_t aux = v / digits;
-	pop	de
-	pop	bc
+	ld	iy, #2
+	add	iy, sp
+	ld	c, 0 (iy)
+	ld	b, 1 (iy)
 	push	bc
-	push	de
-	push	bc
-	ld	hl, #6
-	add	hl, sp
-	ld	c, (hl)
-	inc	hl
-	ld	b, (hl)
-	push	bc
+	ld	l, 2 (iy)
+	ld	h, 3 (iy)
+	push	hl
 	call	__divuint
 	pop	af
 	pop	af
 ;conio.c:42: uint8_t n = aux % 10;
-	ld	bc, #0x000a
-	push	bc
+	ld	de, #0x000a
+	push	de
 	push	hl
 	call	__moduint
 	pop	af
@@ -234,10 +230,11 @@ _putdec::
 	call	__divsint
 	pop	af
 	pop	af
+	ex	de, hl
 	ld	iy, #2
 	add	iy, sp
-	ld	0 (iy), l
-	ld	1 (iy), h
+	ld	0 (iy), e
+	ld	1 (iy), d
 ;conio.c:46: }
 	jr	00101$
 ;conio.c:49: void putdec8(uint8_t v) {
@@ -246,7 +243,7 @@ _putdec::
 ; ---------------------------------
 _putdec8::
 ;conio.c:50: putdec(100, (uint16_t) v);
-	ld	hl, #2+0
+	ld	hl, #2
 	add	hl, sp
 	ld	c, (hl)
 	ld	b, #0x00
@@ -264,11 +261,12 @@ _putdec8::
 ; ---------------------------------
 _putdec16::
 ;conio.c:55: putdec(10000, v);
-	pop	bc
-	pop	hl
-	push	hl
+	ld	hl, #2
+	add	hl, sp
+	ld	c, (hl)
+	inc	hl
+	ld	b, (hl)
 	push	bc
-	push	hl
 	ld	hl, #0x2710
 	push	hl
 	call	_putdec

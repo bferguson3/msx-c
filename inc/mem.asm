@@ -1,6 +1,6 @@
 ;--------------------------------------------------------
 ; File Created by SDCC : free open source ANSI-C Compiler
-; Version 4.0.0 #11528 (MINGW64)
+; Version 4.1.4 #12212 (Linux)
 ;--------------------------------------------------------
 	.module mem
 	.optsdcc -mz80
@@ -49,38 +49,35 @@ _memcpy::
 	push	ix
 	ld	ix,#0
 	add	ix,sp
-	push	af
 ;mem.c:8: while (n > 0) {
 	ld	c, 4 (ix)
 	ld	b, 5 (ix)
-	ld	a, 6 (ix)
-	ld	-2 (ix), a
-	ld	a, 7 (ix)
-	ld	-1 (ix), a
+	push	iy
+	ex	(sp), hl
+	ld	l, 6 (ix)
+	ex	(sp), hl
+	ex	(sp), hl
+	ld	h, 7 (ix)
+	ex	(sp), hl
+	pop	iy
 	ld	e, 8 (ix)
 	ld	d, 9 (ix)
 00101$:
 	ld	a, d
 	or	a, e
-	jr	Z,00104$
+	jr	Z, 00104$
 ;mem.c:9: *dest = *src;
-	pop	hl
-	push	hl
-	ld	a, (hl)
+	ld	a, 0 (iy)
 	ld	(bc), a
 ;mem.c:10: dest++;
 	inc	bc
 ;mem.c:11: src++;
-	inc	-2 (ix)
-	jr	NZ,00117$
-	inc	-1 (ix)
-00117$:
+	inc	iy
 ;mem.c:12: n--;
 	dec	de
 	jr	00101$
 00104$:
 ;mem.c:14: }
-	ld	sp, ix
 	pop	ix
 	ret
 ;mem.c:17: void memset(uint8_t *s, uint8_t c, uint16_t n) {
@@ -89,23 +86,20 @@ _memcpy::
 ; ---------------------------------
 _memset::
 ;mem.c:18: while (n > 0) {
-	pop	de
-	pop	bc
-	push	bc
-	push	de
-	ld	hl, #5
-	add	hl, sp
-	ld	e, (hl)
-	inc	hl
-	ld	d, (hl)
+	ld	iy, #2
+	add	iy, sp
+	ld	c, 0 (iy)
+	ld	b, 1 (iy)
+	ld	e, 3 (iy)
+	ld	d, 4 (iy)
 00101$:
 	ld	a, d
 	or	a, e
 	ret	Z
 ;mem.c:19: *s = c;
-	ld	hl, #4+0
-	add	hl, sp
-	ld	a, (hl)
+	ld	iy, #4
+	add	iy, sp
+	ld	a, 0 (iy)
 	ld	(bc), a
 ;mem.c:20: s++;
 	inc	bc
